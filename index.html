@@ -1,226 +1,822 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Minecraft Enchantment Command Generator</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f0f2f5;
-      color: #333;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-    }
-    .container {
-      background: #fff;
-      padding: 20px 30px;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      max-width: 600px;
-      width: 100%;
-    }
-    h1 {
-      margin-bottom: 10px;
-      font-size: 24px;
-      text-align: center;
-    }
-    .controls, .output-section {
-      margin-top: 20px;
-    }
-    .search-bar, select, input, button {
-      width: 100%;
-      margin: 5px 0;
-      padding: 8px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-    button {
-      background: #28a745;
-      color: white;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    button:hover {
-      background: #218838;
-    }
-    .enchantments div {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 8px;
-      align-items: center;
-    }
-    .enchantments select, .enchantments input {
-      flex: 1;
-    }
-.delete-btn {
-  background: #dc3545;
-  color: #FFFFFF;
-  border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  flex: 0 0 auto; 
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ENCHANT FORGE</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+button{cursor:pointer;font-family:inherit;border:none;background:none}
+select,input{font-family:inherit}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#4a0808;border-radius:2px}
+
+:root{
+  --bg0:#050202;--bg1:#0b0404;--bg2:#110606;--bg3:#170707;--card:#0e0505;
+  --r1:#ff2828;--r2:#cc1a1a;--r3:#881010;--r4:#440808;--r5:#1e0404;
+  --rg:rgba(255,40,40,.18);
+  --b1:#1a0606;--b2:#2e0c0c;--b3:#4a1010;
+  --t1:#f0dddd;--t2:#b07878;--t3:#6a3838;--t4:#351818;
+  --mono:#ff5c5c;--rad:4px;
 }
-.delete-btn:hover {
-  background: #b52a37;
+
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg0);color:var(--t1);
+  min-height:100svh;overflow-x:hidden;
 }
-    .output-section .output {
-      background: #f7f7f7;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 10px;
-      font-family: monospace;
-      font-size: 13px;
-      white-space: nowrap;
-      overflow-x: auto;
-      cursor: text;
-      user-select: text;
-    }
-    .buttons-group {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .warning {
-      color: #d9534f;
-      font-size: 13px;
-      margin-top: 10px;
-    }
-  </style>
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,30,30,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,30,30,.025) 1px,transparent 1px);
+  background-size:36px 36px;z-index:0;
+}
+
+/* ─ HEADER ─ */
+.hdr{
+  position:relative;z-index:2;
+  background:linear-gradient(180deg,#1c0606 0%,var(--bg1) 100%);
+  border-bottom:1px solid var(--b3);
+  padding:16px 16px 12px;text-align:center;
+}
+.hdr::after{
+  content:'';position:absolute;bottom:-1px;left:15%;right:15%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--r1),transparent);
+}
+.hdr-title{
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(16px,4.5vw,32px);font-weight:900;
+  letter-spacing:clamp(3px,1.5vw,10px);
+  color:var(--r1);
+  text-shadow:0 0 18px rgba(255,40,40,.45),0 0 36px rgba(200,20,20,.2);
+}
+.hdr-sub{
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(8px,2vw,10px);letter-spacing:3px;
+  color:var(--t3);margin-top:4px;text-transform:uppercase;
+}
+
+/* ─ VERSION TABS ─ */
+.vtabs{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border-bottom:2px solid var(--b2);position:relative;z-index:2;
+  background:var(--bg1);
+}
+.vtab{
+  padding:9px 4px;text-align:center;
+  border-right:1px solid var(--b2);
+  cursor:pointer;transition:background .15s;position:relative;
+}
+.vtab:last-child{border-right:none}
+.vtab-label{
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(7px,1.6vw,9.5px);font-weight:700;
+  letter-spacing:1px;color:var(--t3);
+  text-transform:uppercase;display:block;transition:color .15s;
+}
+.vtab-range{
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(8px,2vw,11px);color:var(--t4);
+  margin-top:2px;display:block;transition:color .15s;
+}
+.vtab.active{background:var(--r5)}
+.vtab.active .vtab-label{color:var(--r1)}
+.vtab.active .vtab-range{color:var(--r2)}
+.vtab.active::after{
+  content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;
+  background:var(--r1);box-shadow:0 0 8px var(--r1);
+}
+.vtab:hover:not(.active){background:var(--r5)}
+
+/* ─ APP LAYOUT ─ */
+.app{
+  position:relative;z-index:1;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  overflow:hidden;
+}
+@media(max-width:640px){.app{grid-template-columns:minmax(0,1fr)}}
+
+/* ─ PANEL ─ */
+.panel{
+  border-right:1px solid var(--b2);
+  display:flex;flex-direction:column;
+  min-width:0;
+}
+.panel-r{
+  display:flex;flex-direction:column;
+  min-width:0;
+}
+@media(max-width:640px){
+  .panel{border-right:none;border-bottom:1px solid var(--b2)}
+}
+
+/* ─ PANEL HEADER ─ */
+.ph{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 12px;background:var(--bg2);
+  border-bottom:1px solid var(--b2);flex-shrink:0;
+}
+.ph-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--r1);box-shadow:0 0 5px var(--r1);flex-shrink:0;
+}
+.ph-title{
+  font-family:'Orbitron',sans-serif;
+  font-size:8.5px;font-weight:700;letter-spacing:2.5px;
+  color:var(--t2);text-transform:uppercase;
+}
+.ph-count{
+  margin-left:auto;font-family:'JetBrains Mono',monospace;
+  font-size:10px;color:var(--t3);
+}
+
+/* ─ ITEM PANEL CONTENT ─ */
+.item-search{
+  padding:10px 12px 0;flex-shrink:0;
+}
+.sbox{
+  display:flex;align-items:center;gap:7px;
+  background:var(--bg1);border:1px solid var(--b2);
+  border-radius:var(--rad);padding:0 10px;height:34px;
+  transition:border-color .18s;
+}
+.sbox:focus-within{border-color:var(--r2)}
+.sbox svg{flex-shrink:0;color:var(--r3)}
+.sbox input{
+  background:none;border:none;outline:none;
+  color:var(--t1);font-size:12px;width:100%;
+}
+.sbox input::placeholder{color:var(--t4)}
+
+/* Category scroll */
+.cat-row{
+  display:flex;gap:4px;overflow-x:auto;
+  padding:7px 12px;scrollbar-width:none;flex-shrink:0;
+}
+.cat-row::-webkit-scrollbar{display:none}
+.cp{
+  flex-shrink:0;font-size:9px;font-weight:600;
+  letter-spacing:.3px;padding:3px 9px;
+  border:1px solid var(--b2);border-radius:2px;
+  color:var(--t3);background:transparent;
+  transition:all .13s;text-transform:uppercase;white-space:nowrap;
+}
+.cp.on,
+.cp:hover{border-color:var(--r2);color:var(--t1);background:var(--r5)}
+.cp.on{border-color:var(--r1);color:var(--r1)}
+
+/* Item list */
+.ilist{
+  flex:1;overflow-y:auto;
+  margin:0 12px 8px;
+  border:1px solid var(--b2);border-radius:var(--rad);
+  background:var(--bg1);
+  min-height:160px;max-height:clamp(170px,28vh,280px);
+}
+.gh{
+  font-family:'JetBrains Mono',monospace;
+  font-size:8.5px;letter-spacing:2px;color:var(--r3);
+  padding:5px 10px 4px;background:rgba(0,0,0,.55);
+  border-bottom:1px solid var(--b1);
+  position:sticky;top:0;z-index:1;text-transform:uppercase;
+}
+.ir{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 10px;border-bottom:1px solid var(--b1);
+  cursor:pointer;border-left:2px solid transparent;
+  transition:all .1s;gap:6px;
+}
+.ir:last-child{border-bottom:none}
+.ir:hover{background:var(--r5);border-left-color:var(--r3)}
+.ir.sel{background:rgba(255,40,40,.09);border-left-color:var(--r1)}
+.ir-name{font-size:12px;font-weight:500;color:var(--t2);line-height:1.3}
+.ir.sel .ir-name{color:var(--t1)}
+.ir-id{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t4);flex-shrink:0}
+.ir-note{font-size:9px;color:var(--r3);margin-left:2px}
+
+.sel-bar{
+  flex-shrink:0;margin:0 12px 10px;
+  padding:7px 10px;
+  background:rgba(255,40,40,.05);
+  border:1px solid var(--b3);border-radius:var(--rad);
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  display:flex;align-items:center;gap:4px;
+  overflow:hidden;
+}
+.sl-pre{color:var(--t3)}
+.sl-id{color:var(--r1);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ─ ENCHANTMENT PANEL CONTENT ─ */
+.etch-top{padding:10px 12px 0;flex-shrink:0}
+
+.fmt-box{
+  background:var(--bg1);border:1px solid var(--b2);
+  border-left:2px solid var(--r3);border-radius:var(--rad);
+  padding:7px 10px;margin-bottom:8px;
+}
+.fmt-lbl{
+  font-family:'JetBrains Mono',monospace;
+  font-size:8px;letter-spacing:2px;color:var(--r3);
+  text-transform:uppercase;margin-bottom:3px;
+}
+.fmt-txt{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;color:var(--t3);word-break:break-all;line-height:1.5;
+}
+.leg-warn{
+  background:rgba(80,40,0,.2);border:1px solid #4a2000;
+  border-left:2px solid #bb6000;border-radius:var(--rad);
+  padding:6px 9px;font-size:10px;color:#b06020;
+  margin-bottom:8px;display:none;line-height:1.4;
+}
+
+/* Toolbar */
+.etoolbar{
+  display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap;
+}
+.etb{
+  height:32px;padding:0 12px;
+  font-size:9.5px;font-weight:700;letter-spacing:.5px;
+  border-radius:var(--rad);text-transform:uppercase;
+  white-space:nowrap;transition:all .14s;flex-shrink:0;
+}
+.etb.pri{
+  background:linear-gradient(135deg,var(--r3),var(--r4));
+  border:1px solid var(--r2);color:#ffcccc;
+}
+.etb.pri:hover{background:linear-gradient(135deg,var(--r2),var(--r3));box-shadow:0 0 10px var(--rg)}
+.etb.gho{background:transparent;border:1px solid var(--b2);color:var(--t3)}
+.etb.gho:hover{border-color:var(--b3);color:var(--t2)}
+.etb.dan{background:transparent;border:1px solid #240e00;color:#6a3010}
+.etb.dan:hover{border-color:#5a2800;color:#bb6030}
+
+/* Ench list */
+.elist{
+  flex:1;overflow-y:auto;
+  padding:0 12px 12px;
+  display:flex;flex-direction:column;gap:5px;
+  min-height:120px;max-height:clamp(160px,32vh,340px);
+}
+.no-e{
+  border:1px dashed var(--b2);border-radius:var(--rad);
+  padding:24px 12px;text-align:center;
+  font-family:'JetBrains Mono',monospace;
+  font-size:9.5px;letter-spacing:2px;color:var(--t4);
+  text-transform:uppercase;
+}
+
+/* ─ ENCHANTMENT ROW ─ */
+.erow{
+  display:flex;flex-direction:column;gap:5px;
+  padding:7px 8px;
+  background:var(--bg2);
+  border:1px solid var(--b2);
+  border-left:2px solid var(--b3);
+  border-radius:var(--rad);
+  animation:fi .14s ease-out;transition:border-left-color .13s;
+}
+.erow:hover{border-left-color:var(--r3)}
+@keyframes fi{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+.erow-top{display:flex;align-items:center;gap:5px}
+
+.esel{
+  background:transparent;border:1px solid var(--b2);
+  border-radius:2px;color:var(--t1);
+  font-size:12px;font-weight:500;
+  padding:5px 6px;outline:none;flex:1;min-width:0;cursor:pointer;
+  transition:border-color .14s;height:32px;
+}
+.esel:focus{border-color:var(--r2)}
+.esel option{background:#0e0404}
+.esel optgroup{background:#160606;color:var(--r3)}
+
+/* Del */
+.db{
+  flex-shrink:0;width:32px;height:32px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--bg1);border:1px solid #250606;
+  border-radius:2px;color:#3a1515;font-size:13px;
+  transition:all .1s;
+}
+.db:hover{background:rgba(200,0,0,.18);border-color:#770000;color:#ff5050}
+
+/* Level stepper — full width second row */
+.stepper{
+  display:flex;align-items:center;width:100%;
+  border:1px solid var(--b2);border-radius:2px;
+  overflow:hidden;height:34px;
+}
+.sb{
+  flex:0 0 44px;height:34px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:700;line-height:1;
+  color:var(--t2);background:var(--bg1);
+  border:none;transition:all .1s;
+}
+.sb:hover{background:var(--r4);color:var(--t1)}
+.sb:active{background:var(--r3);color:#fff}
+.sn{
+  flex:1;min-width:0;background:var(--bg0);
+  border:none;border-left:1px solid var(--b2);border-right:1px solid var(--b2);
+  color:var(--r1);font-family:'JetBrains Mono',monospace;
+  font-size:15px;font-weight:700;
+  height:34px;text-align:center;outline:none;
+}
+.sn::-webkit-outer-spin-button,.sn::-webkit-inner-spin-button{-webkit-appearance:none}
+.sn[type=number]{-moz-appearance:textfield}
+
+/* ─ OUTPUT ─ */
+.outbar{
+  grid-column:1/-1;
+  border-top:2px solid var(--b2);
+  background:var(--bg1);
+  padding:13px 14px;
+  position:relative;z-index:1;
+}
+.out-top{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:9px;flex-wrap:wrap;
+}
+.out-ttl{
+  font-family:'Orbitron',sans-serif;
+  font-size:8.5px;font-weight:700;letter-spacing:2.5px;
+  color:var(--t2);text-transform:uppercase;
+  display:flex;align-items:center;gap:7px;
+}
+.out-cnt{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3)}
+.cmd{
+  background:var(--bg0);
+  border:1px solid var(--b2);border-left:3px solid var(--r3);
+  border-radius:var(--rad);
+  padding:11px 13px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;color:var(--mono);
+  min-height:48px;word-break:break-all;line-height:1.7;
+  cursor:text;user-select:text;
+  transition:border-color .2s,box-shadow .2s;
+}
+.cmd.live{
+  border-left-color:var(--r1);
+  box-shadow:0 0 14px rgba(255,40,40,.07);
+}
+.cmd-ph{color:var(--t4);font-size:10.5px;letter-spacing:.5px}
+.out-btns{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
+
+/* Buttons */
+.btn-g{
+  height:38px;padding:0 18px;
+  font-family:'Orbitron',sans-serif;
+  font-size:8.5px;font-weight:800;letter-spacing:2px;
+  text-transform:uppercase;
+  background:linear-gradient(135deg,#850000,#560000);
+  border:1px solid var(--r2);border-radius:var(--rad);
+  color:#ffd0d0;transition:all .16s;
+}
+.btn-g:hover{background:linear-gradient(135deg,#b80000,#850000);box-shadow:0 0 14px var(--rg);color:#fff}
+.btn-c,.btn-r{
+  height:38px;padding:0 14px;
+  font-size:11px;font-weight:600;
+  border:1px solid var(--b2);border-radius:var(--rad);
+  color:var(--t3);background:transparent;transition:all .13s;
+}
+.btn-c:hover,.btn-r:hover{border-color:var(--b3);color:var(--t2)}
+
+/* Footer */
+.ftr{
+  border-top:1px solid var(--b1);background:var(--bg0);
+  padding:8px 14px;font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:2px;color:var(--t4);
+  text-align:center;text-transform:uppercase;position:relative;z-index:1;
+}
+.ftr span{color:var(--r3)}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:16px;right:12px;
+  padding:9px 14px;font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+  border-radius:var(--rad);opacity:0;transform:translateY(5px);
+  transition:all .2s;pointer-events:none;z-index:999;
+}
+.toast.ok{background:#002800;border:1px solid #009944;color:#88ffaa;box-shadow:0 0 10px rgba(0,160,60,.3)}
+.toast.er{background:var(--r4);border:1px solid var(--r2);color:#ffbbbb}
+.toast.in{opacity:1;transform:none}
+
+/* Mobile tweaks */
+@media(max-width:400px){
+  .etb{height:30px;padding:0 9px;font-size:9px}
+}
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>Minecraft Enchantment Command Generator</h1>
 
-    <!-- Searchable Item List -->
-    <div class="controls">
-      <label for="item-search">Search Item:</label>
-      <input type="text" id="item-search" placeholder="Type to search items...">
-      <select id="item" size="5"></select>
+<header class="hdr">
+  <div class="hdr-title">ENCHANT FORGE</div>
+  <div class="hdr-sub">Minecraft Java Edition — /give Command Generator</div>
+</header>
 
-      <h3>Add Enchantments</h3>
-      <div class="enchantments" id="enchantments"></div>
-      <button onclick="addEnchantment()">➕ Add Enchantment</button>
-      <div class="warning">
-        ⚠️ Warning: Use only enchantments that are valid for the selected item. Invalid ones may not work in-game.
+<div class="vtabs">
+  <div class="vtab" data-v="legacy" onclick="setVer('legacy')">
+    <span class="vtab-label">Legacy</span>
+    <span class="vtab-range">≤ 1.12</span>
+  </div>
+  <div class="vtab active" data-v="standard" onclick="setVer('standard')">
+    <span class="vtab-label">Standard</span>
+    <span class="vtab-range">1.13 – 1.20.4</span>
+  </div>
+  <div class="vtab" data-v="modern" onclick="setVer('modern')">
+    <span class="vtab-label">Modern</span>
+    <span class="vtab-range">1.20.5 +</span>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- ITEM PANEL -->
+  <div class="panel">
+    <div class="ph">
+      <div class="ph-dot"></div>
+      <span class="ph-title">Select Item</span>
+      <span class="ph-count" id="iCnt">–</span>
+    </div>
+    <div class="item-search">
+      <div class="sbox">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="iSearch" placeholder="Search items…" oninput="renderItems()" autocomplete="off">
       </div>
     </div>
-
-    <div class="output-section">
-      <div class="buttons-group">
-        <button onclick="generateCommand()">Generate Command</button>
-        <button onclick="copyCommand()">📋 Copy Command</button>
-        <button onclick="resetAll()">♻️ Reset</button>
-      </div>
-      <div class="output" id="output" onclick="selectText(this)">Your command will appear here...</div>
+    <div class="cat-row" id="catRow"></div>
+    <div class="ilist" id="iList"></div>
+    <div class="sel-bar">
+      <span class="sl-pre">minecraft:</span>
+      <span class="sl-id" id="slId">diamond_sword</span>
     </div>
   </div>
 
-  <script>
-    // Full list of enchantable items
-const itemsList = [
-  "mace",
+  <!-- ENCHANTMENT PANEL -->
+  <div class="panel-r">
+    <div class="ph">
+      <div class="ph-dot"></div>
+      <span class="ph-title">Enchantments</span>
+      <span class="ph-count" id="eCnt">0 added</span>
+    </div>
+    <div class="etch-top">
+      <div class="fmt-box">
+        <div class="fmt-lbl">Format</div>
+        <div class="fmt-txt" id="fmtTxt"></div>
+      </div>
+      <div class="leg-warn" id="legWarn">⚠ Legacy: Uses numeric IDs. Enchantments from 1.13+ will be skipped.</div>
+      <div class="etoolbar">
+        <button class="etb pri" onclick="addRow()">+ Add</button>
+        <button class="etb gho" onclick="addAll()">⚡ All</button>
+        <button class="etb gho" onclick="maxAll()">▲ Max</button>
+        <button class="etb dan" onclick="clearAll()">✕ Clear</button>
+      </div>
+    </div>
+    <div class="elist" id="eList">
+      <div class="no-e" id="noE">No enchantments added yet</div>
+    </div>
+  </div>
 
-  "wooden_sword","stone_sword","iron_sword","golden_sword","diamond_sword","netherite_sword","copper_sword",
-  "wooden_pickaxe","stone_pickaxe","iron_pickaxe","golden_pickaxe","diamond_pickaxe","netherite_pickaxe","copper_pickaxe",
-  "wooden_axe","stone_axe","iron_axe","golden_axe","diamond_axe","netherite_axe","copper_axe",
-  "wooden_shovel","stone_shovel","iron_shovel","golden_shovel","diamond_shovel","netherite_shovel","copper_shovel",
-  "wooden_hoe","stone_hoe","iron_hoe","golden_hoe","diamond_hoe","netherite_hoe","copper_hoe",
+  <!-- OUTPUT (full width) -->
+  <div class="outbar">
+    <div class="out-top">
+      <div class="out-ttl"><div class="ph-dot"></div>Generated Command</div>
+      <span class="out-cnt" id="outCnt">0 enchantments</span>
+    </div>
+    <div class="cmd" id="cmdOut" onclick="selAll(this)">
+      <span class="cmd-ph">Select an item → add enchantments → Generate</span>
+    </div>
+    <div class="out-btns">
+      <button class="btn-g" onclick="genCmd()">⚙ Generate</button>
+      <button class="btn-c" onclick="copyCmd()">📋 Copy</button>
+      <button class="btn-r" onclick="resetAll()">↺ Reset</button>
+    </div>
+  </div>
+</div>
 
-  "bow","crossbow","fishing_rod","trident","shield","elytra","shears","flint_and_steel",
+<div class="ftr">Enchant Forge &nbsp;·&nbsp; <span>Java Edition Only</span> &nbsp;·&nbsp; Legacy ≤1.12 · Standard 1.13–1.20.4 · Modern 1.20.5+</div>
+<div class="toast" id="toast"></div>
 
-  "netherite_helmet","diamond_helmet","iron_helmet","golden_helmet","chainmail_helmet","leather_helmet","copper_helmet",
-  "netherite_chestplate","diamond_chestplate","iron_chestplate","golden_chestplate","chainmail_chestplate","leather_chestplate","copper_chestplate",
-  "netherite_leggings","diamond_leggings","iron_leggings","golden_leggings","chainmail_leggings","leather_leggings","copper_leggings",
-  "netherite_boots","diamond_boots","iron_boots","golden_boots","chainmail_boots","leather_boots","copper_boots"
+<script>
+// ──── DATA ────────────────────────────────────────────────
+const CATS={
+  "Swords":[
+    {id:"wooden_sword",n:"Wooden Sword"},{id:"stone_sword",n:"Stone Sword"},
+    {id:"iron_sword",n:"Iron Sword"},{id:"golden_sword",n:"Golden Sword"},
+    {id:"diamond_sword",n:"Diamond Sword"},{id:"netherite_sword",n:"Netherite Sword"},
+    {id:"copper_sword",n:"Copper Sword"},
+  ],
+  "Mace / Spear":[
+    {id:"mace",n:"Mace",nt:"1.21+"},{id:"spear",n:"Spear",nt:"1.21.5+"},
+  ],
+  "Pickaxes":[
+    {id:"wooden_pickaxe",n:"Wooden Pickaxe"},{id:"stone_pickaxe",n:"Stone Pickaxe"},
+    {id:"iron_pickaxe",n:"Iron Pickaxe"},{id:"golden_pickaxe",n:"Golden Pickaxe"},
+    {id:"diamond_pickaxe",n:"Diamond Pickaxe"},{id:"netherite_pickaxe",n:"Netherite Pickaxe"},
+    {id:"copper_pickaxe",n:"Copper Pickaxe"},
+  ],
+  "Axes":[
+    {id:"wooden_axe",n:"Wooden Axe"},{id:"stone_axe",n:"Stone Axe"},
+    {id:"iron_axe",n:"Iron Axe"},{id:"golden_axe",n:"Golden Axe"},
+    {id:"diamond_axe",n:"Diamond Axe"},{id:"netherite_axe",n:"Netherite Axe"},
+    {id:"copper_axe",n:"Copper Axe"},
+  ],
+  "Shovels":[
+    {id:"wooden_shovel",n:"Wooden Shovel"},{id:"stone_shovel",n:"Stone Shovel"},
+    {id:"iron_shovel",n:"Iron Shovel"},{id:"golden_shovel",n:"Golden Shovel"},
+    {id:"diamond_shovel",n:"Diamond Shovel"},{id:"netherite_shovel",n:"Netherite Shovel"},
+    {id:"copper_shovel",n:"Copper Shovel"},
+  ],
+  "Hoes":[
+    {id:"wooden_hoe",n:"Wooden Hoe"},{id:"stone_hoe",n:"Stone Hoe"},
+    {id:"iron_hoe",n:"Iron Hoe"},{id:"golden_hoe",n:"Golden Hoe"},
+    {id:"diamond_hoe",n:"Diamond Hoe"},{id:"netherite_hoe",n:"Netherite Hoe"},
+    {id:"copper_hoe",n:"Copper Hoe"},
+  ],
+  "Ranged":[
+    {id:"bow",n:"Bow"},{id:"crossbow",n:"Crossbow",nt:"1.14+"},{id:"trident",n:"Trident",nt:"1.13+"},
+  ],
+  "Fishing / Tools":[
+    {id:"fishing_rod",n:"Fishing Rod"},{id:"shears",n:"Shears"},{id:"flint_and_steel",n:"Flint & Steel"},
+  ],
+  "Helmets":[
+    {id:"leather_helmet",n:"Leather Helmet"},{id:"chainmail_helmet",n:"Chainmail Helmet"},
+    {id:"iron_helmet",n:"Iron Helmet"},{id:"golden_helmet",n:"Golden Helmet"},
+    {id:"diamond_helmet",n:"Diamond Helmet"},{id:"netherite_helmet",n:"Netherite Helmet"},
+    {id:"copper_helmet",n:"Copper Helmet"},{id:"turtle_helmet",n:"Turtle Helmet",nt:"1.13+"},
+  ],
+  "Chestplates":[
+    {id:"leather_chestplate",n:"Leather Chestplate"},{id:"chainmail_chestplate",n:"Chainmail Chestplate"},
+    {id:"iron_chestplate",n:"Iron Chestplate"},{id:"golden_chestplate",n:"Golden Chestplate"},
+    {id:"diamond_chestplate",n:"Diamond Chestplate"},{id:"netherite_chestplate",n:"Netherite Chestplate"},
+    {id:"copper_chestplate",n:"Copper Chestplate"},{id:"elytra",n:"Elytra",nt:"1.9+"},
+  ],
+  "Leggings":[
+    {id:"leather_leggings",n:"Leather Leggings"},{id:"chainmail_leggings",n:"Chainmail Leggings"},
+    {id:"iron_leggings",n:"Iron Leggings"},{id:"golden_leggings",n:"Golden Leggings"},
+    {id:"diamond_leggings",n:"Diamond Leggings"},{id:"netherite_leggings",n:"Netherite Leggings"},
+    {id:"copper_leggings",n:"Copper Leggings"},
+  ],
+  "Boots":[
+    {id:"leather_boots",n:"Leather Boots"},{id:"chainmail_boots",n:"Chainmail Boots"},
+    {id:"iron_boots",n:"Iron Boots"},{id:"golden_boots",n:"Golden Boots"},
+    {id:"diamond_boots",n:"Diamond Boots"},{id:"netherite_boots",n:"Netherite Boots"},
+    {id:"copper_boots",n:"Copper Boots"},
+  ],
+  "Special":[
+    {id:"shield",n:"Shield"},{id:"stick",n:"Stick"},
+    {id:"carved_pumpkin",n:"Carved Pumpkin"},{id:"enchanted_book",n:"Enchanted Book"},
+  ],
+};
+
+const ENCHS=[
+  // Universal
+  {id:"unbreaking",n:"Unbreaking",max:3,lid:34,cat:"Universal"},
+  {id:"mending",n:"Mending",max:1,lid:70,cat:"Universal"},
+  {id:"curse_of_vanishing",n:"Curse of Vanishing",max:1,lid:71,cat:"Curse"},
+  {id:"curse_of_binding",n:"Curse of Binding",max:1,lid:10,cat:"Curse"},
+  // Combat
+  {id:"sharpness",n:"Sharpness",max:5,lid:16,cat:"Combat"},
+  {id:"smite",n:"Smite",max:5,lid:17,cat:"Combat"},
+  {id:"bane_of_arthropods",n:"Bane of Arthropods",max:5,lid:18,cat:"Combat"},
+  {id:"knockback",n:"Knockback",max:2,lid:19,cat:"Combat"},
+  {id:"fire_aspect",n:"Fire Aspect",max:2,lid:20,cat:"Combat"},
+  {id:"looting",n:"Looting",max:3,lid:21,cat:"Combat"},
+  {id:"sweeping_edge",n:"Sweeping Edge",max:3,lid:22,cat:"Combat"},
+  // Mace
+  {id:"density",n:"Density",max:5,lid:null,cat:"Mace"},
+  {id:"breach",n:"Breach",max:4,lid:null,cat:"Mace"},
+  {id:"wind_burst",n:"Wind Burst",max:3,lid:null,cat:"Mace"},
+  // Spear
+  {id:"lunge",n:"Lunge",max:3,lid:null,cat:"Spear"},
+  // Trident
+  {id:"riptide",n:"Riptide",max:3,lid:67,cat:"Trident"},
+  {id:"impaling",n:"Impaling",max:5,lid:66,cat:"Trident"},
+  {id:"channeling",n:"Channeling",max:1,lid:68,cat:"Trident"},
+  {id:"loyalty",n:"Loyalty",max:3,lid:65,cat:"Trident"},
+  // Tools
+  {id:"efficiency",n:"Efficiency",max:5,lid:32,cat:"Tools"},
+  {id:"silk_touch",n:"Silk Touch",max:1,lid:33,cat:"Tools"},
+  {id:"fortune",n:"Fortune",max:3,lid:35,cat:"Tools"},
+  // Bow
+  {id:"power",n:"Power",max:5,lid:48,cat:"Bow"},
+  {id:"punch",n:"Punch",max:2,lid:49,cat:"Bow"},
+  {id:"flame",n:"Flame",max:1,lid:50,cat:"Bow"},
+  {id:"infinity",n:"Infinity",max:1,lid:51,cat:"Bow"},
+  // Crossbow
+  {id:"multishot",n:"Multishot",max:1,lid:null,cat:"Crossbow"},
+  {id:"piercing",n:"Piercing",max:4,lid:null,cat:"Crossbow"},
+  {id:"quick_charge",n:"Quick Charge",max:3,lid:null,cat:"Crossbow"},
+  // Fishing
+  {id:"luck_of_the_sea",n:"Luck of the Sea",max:3,lid:61,cat:"Fishing"},
+  {id:"lure",n:"Lure",max:3,lid:62,cat:"Fishing"},
+  // Armor
+  {id:"protection",n:"Protection",max:4,lid:0,cat:"Armor"},
+  {id:"fire_protection",n:"Fire Protection",max:4,lid:1,cat:"Armor"},
+  {id:"blast_protection",n:"Blast Protection",max:4,lid:3,cat:"Armor"},
+  {id:"projectile_protection",n:"Projectile Protection",max:4,lid:4,cat:"Armor"},
+  {id:"feather_falling",n:"Feather Falling",max:4,lid:2,cat:"Armor"},
+  {id:"respiration",n:"Respiration",max:3,lid:5,cat:"Armor"},
+  {id:"aqua_affinity",n:"Aqua Affinity",max:1,lid:6,cat:"Armor"},
+  {id:"thorns",n:"Thorns",max:3,lid:7,cat:"Armor"},
+  {id:"depth_strider",n:"Depth Strider",max:3,lid:8,cat:"Armor"},
+  {id:"frost_walker",n:"Frost Walker",max:2,lid:9,cat:"Armor"},
+  {id:"soul_speed",n:"Soul Speed",max:3,lid:null,cat:"Armor"},
+  {id:"swift_sneak",n:"Swift Sneak",max:3,lid:null,cat:"Armor"},
 ];
 
-    const enchantmentsList = [
-      "sharpness","smite","bane_of_arthropods","knockback","fire_aspect","sweeping_edge","looting","efficiency","silk_touch",
-      "fortune","unbreaking","mending","protection","blast_protection","projectile_protection","fire_protection","feather_falling",
-      "respiration","aqua_affinity","thorns","depth_strider","frost_walker","soul_speed","swift_sneak",
-      "infinity","power","punch","flame","multishot","piercing","quick_charge","riptide","impaling","channeling","loyalty","density","breach","wind_burst"
-    ];
+// ──── STATE ───────────────────────────────────────────────
+let sItem="diamond_sword", sVer="standard", sCat="All", rid=0;
 
-    const itemSelect = document.getElementById("item");
-    const itemSearch = document.getElementById("item-search");
+// ──── BOOT ────────────────────────────────────────────────
+// init called after all declarations below
 
-    function populateItems(filter = "") {
-      itemSelect.innerHTML = "";
-      const filtered = itemsList.filter(i => i.includes(filter.toLowerCase()));
-      filtered.forEach(i => {
-        const opt = document.createElement("option");
-        opt.value = i;
-        opt.textContent = i;
-        itemSelect.appendChild(opt);
-      });
-    }
+// ──── CATS ────────────────────────────────────────────────
+function buildCats(){
+  document.getElementById('catRow').innerHTML=
+    ['All',...Object.keys(CATS)].map(c=>
+      `<button class="cp${c==='All'?' on':''}" onclick="setCat('${c}')">${c}</button>`
+    ).join('');
+}
+function setCat(c){
+  sCat=c;
+  document.querySelectorAll('.cp').forEach(b=>b.classList.toggle('on',b.textContent===c));
+  renderItems();
+}
 
-    itemSearch.addEventListener("input", () => {
-      populateItems(itemSearch.value);
+// ──── ITEMS ───────────────────────────────────────────────
+function renderItems(){
+  const q=document.getElementById('iSearch').value.toLowerCase().trim();
+  const box=document.getElementById('iList');
+  box.innerHTML='';
+  const keys=sCat==='All'?Object.keys(CATS):[sCat];
+  let tot=0;
+  keys.forEach(cat=>{
+    const rows=CATS[cat].filter(i=>!q||i.n.toLowerCase().includes(q)||i.id.includes(q));
+    if(!rows.length) return;
+    const g=document.createElement('div');g.className='gh';g.textContent=cat;box.appendChild(g);
+    rows.forEach(item=>{
+      const d=document.createElement('div');
+      d.className='ir'+(item.id===sItem?' sel':'');
+      d.onclick=()=>pickItem(item.id);
+      d.innerHTML=`<span class="ir-name">${item.n}${item.nt?`<span class="ir-note">[${item.nt}]</span>`:''}</span>`
+        +`<span class="ir-id">${item.id}</span>`;
+      box.appendChild(d);tot++;
     });
+  });
+  document.getElementById('iCnt').textContent=tot+' items';
+}
+function pickItem(id){
+  sItem=id;
+  document.getElementById('slId').textContent=id;
+  document.querySelectorAll('.ir').forEach(r=>r.classList.toggle('sel',r.querySelector('.ir-id')?.textContent===id));
+  updateFmt();
+}
 
-    // Initial population
-    populateItems();
+// ──── VERSION ─────────────────────────────────────────────
+const FMTS={
+  legacy:  ()=>`give @p minecraft:ITEM 1 0 {ench:[{id:NUMERIC_ID,lvl:LEVEL}]}`,
+  standard:()=>`give @p minecraft:ITEM{Enchantments:[{id:"minecraft:ENCH",lvl:LEVEL}]} 1`,
+  modern:  ()=>{const t=sItem==='enchanted_book'?'stored_enchantments':'enchantments';
+                return `give @p minecraft:ITEM[${t}={ENCH:LEVEL,...}] 1`},
+};
+function setVer(v){
+  sVer=v;
+  document.querySelectorAll('.vtab').forEach(b=>b.classList.toggle('active',b.dataset.v===v));
+  document.getElementById('legWarn').style.display=v==='legacy'?'block':'none';
+  updateFmt();rebuildSels();
+}
+function updateFmt(){document.getElementById('fmtTxt').textContent=FMTS[sVer]();}
 
-    function addEnchantment() {
-      const container = document.getElementById("enchantments");
-      const div = document.createElement("div");
-      div.innerHTML = `
-        <select>
-          ${enchantmentsList.map(e => `<option value="${e}">${e}</option>`).join("")}
-        </select>
-        <input type="number" placeholder="Level" value="1" min="1" max="255" step="1">
-        <button class="delete-btn" onclick="this.parentElement.remove()">X</button>
-      `;
-      container.appendChild(div);
-    }
+// ──── ROWS ────────────────────────────────────────────────
+function eOpts(cur){
+  return [...new Set(ENCHS.map(e=>e.cat))].map(cat=>{
+    const opts=ENCHS.filter(e=>e.cat===cat).map(e=>
+      `<option value="${e.id}"${e.id===cur?' selected':''}>${e.n} (max:${e.max})${e.lid===null&&sVer==='legacy'?' ⚠':''}</option>`
+    ).join('');
+    return `<optgroup label="── ${cat} ──">${opts}</optgroup>`;
+  }).join('');
+}
 
-    function generateCommand() {
-      const item = itemSelect.value || itemsList[0];
-      const enchDivs = document.querySelectorAll("#enchantments div");
-      const enchArr = [];
-      enchDivs.forEach(div => {
-        const id = div.querySelector("select").value;
-        let lvl = parseInt(div.querySelector("input").value);
-        if (isNaN(lvl) || lvl < 1) lvl = 1;
-        if (lvl > 255) lvl = 255; // auto cap at 255
-        enchArr.push(`${id}:${lvl}`);
-      });
-      const command = enchArr.length > 0 
-        ? `give @p minecraft:${item}[enchantments={${enchArr.join(",")}}]`
-        : `give @p minecraft:${item}`;
-      document.getElementById("output").innerText = command;
-    }
+function addRow(preId=null,preLvl=null){
+  const el=document.getElementById('eList');
+  const nm=document.getElementById('noE');if(nm)nm.remove();
+  const eid=preId||ENCHS[0].id;
+  const e=ENCHS.find(x=>x.id===eid);
+  const lvl=preLvl!==null?preLvl:(e?e.max:1);
+  const id=++rid;
+  const row=document.createElement('div');
+  row.className='erow';row.id=`r${id}`;
+  row.innerHTML=`
+    <div class="erow-top">
+      <select class="esel" onchange="onEC(${id},this)">${eOpts(eid)}</select>
+      <button class="db" onclick="del(${id})">✕</button>
+    </div>
+    <div class="stepper">
+      <button class="sb" onclick="adj(${id},-1)">−</button>
+      <input class="sn" type="number" id="lv${id}" value="${clamp(lvl)}" min="1" max="255" onchange="this.value=clamp(this.value)">
+      <button class="sb" onclick="adj(${id},+1)">+</button>
+    </div>
+  `;
+  el.appendChild(row);
+  updCnt();
+}
 
-    function copyCommand() {
-      const cmdText = document.getElementById("output").innerText;
-      if (!cmdText || cmdText.includes("Your command will appear")) return;
-      navigator.clipboard.writeText(cmdText)
-        .then(() => alert("Command copied to clipboard!"))
-        .catch(err => alert("Failed to copy: " + err));
-    }
+function clamp(v){const n=parseInt(v)||1;return Math.min(255,Math.max(1,n));}
+function adj(id,d){const i=document.getElementById(`lv${id}`);if(i)i.value=clamp(+i.value+d);}
+function onEC(id,s){const e=ENCHS.find(x=>x.id===s.value);if(e){const i=document.getElementById(`lv${id}`);if(i)i.value=e.max;}}
 
-    function resetAll() {
-      document.getElementById("enchantments").innerHTML = "";
-      document.getElementById("output").innerText = "Your command will appear here...";
-    }
+function del(id){
+  const r=document.getElementById(`r${id}`);if(!r)return;
+  r.style.cssText='opacity:0;transform:translateX(5px);transition:all .12s';
+  setTimeout(()=>{r.remove();chkEmpty();updCnt();},120);
+}
+function chkEmpty(){
+  const el=document.getElementById('eList');
+  if(!el.querySelector('.erow'))
+    el.innerHTML='<div class="no-e" id="noE">No enchantments added yet</div>';
+}
+function addAll(){
+  document.getElementById('eList').innerHTML='';rid=0;
+  ENCHS.forEach(e=>{if(sVer==='legacy'&&e.lid===null)return;addRow(e.id,e.max);});
+  updCnt();
+}
+function maxAll(){
+  document.querySelectorAll('.erow').forEach(r=>{
+    const e=ENCHS.find(x=>x.id===r.querySelector('.esel').value);
+    if(e){const i=r.querySelector('.sn');if(i)i.value=e.max;}
+  });
+}
+function clearAll(){
+  document.getElementById('eList').innerHTML='<div class="no-e" id="noE">No enchantments added yet</div>';
+  updCnt();
+}
+function rebuildSels(){document.querySelectorAll('.esel').forEach(s=>s.innerHTML=eOpts(s.value));}
+function updCnt(){
+  const n=document.querySelectorAll('.erow').length;
+  document.getElementById('eCnt').textContent=n+' added';
+  document.getElementById('outCnt').textContent=n+' enchantment'+(n!==1?'s':'');
+}
 
-    function selectText(element) {
-      const range = document.createRange();
-      range.selectNodeContents(element);
-      const sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(range);
-    }
-  </script>
+// ──── GENERATE ────────────────────────────────────────────
+function getRows(){
+  return[...document.querySelectorAll('.erow')].map(r=>({
+    id:r.querySelector('.esel').value,
+    lvl:clamp(r.querySelector('.sn').value)
+  }));
+}
+function genCmd(){
+  const rows=getRows();let cmd='';
+  if(sVer==='legacy'){
+    const parts=rows.map(r=>({...r,e:ENCHS.find(x=>x.id===r.id)}))
+      .filter(r=>r.e&&r.e.lid!==null)
+      .map(r=>`{id:${r.e.lid},lvl:${r.lvl}}`);
+    const skip=rows.length-parts.length;
+    cmd=parts.length>0?`give @p minecraft:${sItem} 1 0 {ench:[${parts.join(',')}]}`:`give @p minecraft:${sItem} 1`;
+    if(skip>0)cmd+=`  // ⚠ ${skip} skipped`;
+  }else if(sVer==='standard'){
+    const tag=sItem==='enchanted_book'?'StoredEnchantments':'Enchantments';
+    const parts=rows.map(r=>`{id:"minecraft:${r.id}",lvl:${r.lvl}}`);
+    cmd=parts.length>0?`give @p minecraft:${sItem}{${tag}:[${parts.join(',')}]} 1`:`give @p minecraft:${sItem} 1`;
+  }else{
+    const tag=sItem==='enchanted_book'?'stored_enchantments':'enchantments';
+    const parts=rows.map(r=>`${r.id}:${r.lvl}`);
+    cmd=parts.length>0?`give @p minecraft:${sItem}[${tag}={${parts.join(',')}}] 1`:`give @p minecraft:${sItem} 1`;
+  }
+  const b=document.getElementById('cmdOut');
+  b.textContent=cmd;b.classList.toggle('live',rows.length>0);
+}
+function copyCmd(){
+  const t=document.getElementById('cmdOut').textContent;
+  if(!t||t.includes('Select an')){showToast('Generate first!','er');return;}
+  navigator.clipboard.writeText(t).then(()=>showToast('✓ Copied!','ok')).catch(()=>showToast('Failed','er'));
+}
+function resetAll(){
+  clearAll();
+  const b=document.getElementById('cmdOut');
+  b.innerHTML='<span class="cmd-ph">Select an item → add enchantments → Generate</span>';
+  b.classList.remove('live');
+  document.getElementById('outCnt').textContent='0 enchantments';
+}
+function selAll(el){
+  if(!el.classList.contains('live'))return;
+  const r=document.createRange();r.selectNodeContents(el);
+  const s=window.getSelection();s.removeAllRanges();s.addRange(r);
+}
+function showToast(m,t='ok'){
+  const el=document.getElementById('toast');
+  el.textContent=m;el.className=`toast ${t} in`;
+  setTimeout(()=>el.classList.remove('in'),2200);
+}
+
+// Init - called after all declarations
+buildCats(); renderItems(); updateFmt();
+</script>
 </body>
 </html>
